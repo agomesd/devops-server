@@ -4,7 +4,7 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "vitest",
     "build": "npx tsc",
     "start": "node dist/index.js",
     "dev": "nodemon --delay 500ms src/index.ts"
@@ -21,6 +21,8 @@
     "@types/ws": "^8.5.12",
     "nodemon": "^3.1.4",
     "ts-node": "^10.9.2",
-    "typescript": "^5.5.4"
+    "typescript": "^5.5.4",
+    "vite": "^5.4.1",
+    "vitest": "^2.0.5"
   }
 }

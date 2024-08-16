@@ -2,6 +2,8 @@ import { createServer } from "http";
 import { WebSocketServer } from "ws";
 import { config } from "dotenv";
 import { URL } from "url";
+import { buildEnpointString, getRegion, validateRegion } from "./utils";
+import { SUPPORTED_REGIONS } from "./consts";
 
 config(); //Configure environment variables
 const server = createServer();
@@ -9,19 +11,15 @@ const ws = new WebSocketServer({ noServer: true });
 const SERVICE_HOST = process.env.SERVICE_HOST;
 const PORT = process.env.PORT || 8081;
 const DELAY = 5_000;
-const SUPPORTED_REGIONS = [
-  "us-east",
-  "eu-west",
-  "eu-central",
-  "us-west",
-  "sa-east",
-  "ap-southeast",
-];
 
 ws.on("connection", (socket, request) => {
+  if (!SERVICE_HOST) {
+    shutdown("Service host not provided");
+    return;
+  }
   if (!request.url) return;
   const region = getRegion(request.url);
-  const endpoint = buildEnpointString(region);
+  const endpoint = buildEnpointString(region, SERVICE_HOST);
   const interval = setInterval(async () => {
     const data = await getData(endpoint);
     if (!data) {
@@ -63,18 +61,6 @@ server.on("upgrade", (request, socket, head) => {
     }
   }
 });
-
-function getRegion(url: string): string {
-  return url.split("/")[1];
-}
-
-function validateRegion(region: string): boolean {
-  return SUPPORTED_REGIONS.includes(region);
-}
-
-function buildEnpointString(region: string): string {
-  return `https://data--${region}.${SERVICE_HOST}`;
-}
 
 server.on("request", (req, res) => {
   if (!req.url) {
